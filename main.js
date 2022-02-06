@@ -8,9 +8,45 @@ const result = document.getElementById("result");
 const body = document.querySelector("body");
 const label = document.querySelector(".searchCity label");
 
-const handleSubmit = (e) => {
-	e.preventDefault();
-	callApiWeather(e.currentTarget[0].value);
+const callApiGetTime = async (timezone) => {
+	await axios({
+		method: "GET",
+		url: `https://timezoneapi.io/api/timezone/?${timezone}&token=${API_KEY_GET_TIME}`,
+	})
+		.then((res) => {
+			//night, evening, morning, afternoon
+
+			const timeday = res.data.data.datetime.timeday_gen;
+			if (timeday === "night") {
+				body.style.backgroundImage = `url('./img/night.jpg')`;
+				label.style.color = "white";
+			} else if (timeday === "evening") {
+				body.style.backgroundImage = `url('./img/evening.jpg')`;
+				label.style.color = "white";
+			} else if (timeday === "afternoon") {
+				body.style.backgroundImage = `url('./img/afternoon.jpg')`;
+				label.style.color = "black";
+			} else if (timeday === "morning") {
+				body.style.backgroundImage = `url('./img/morning.jpg')`;
+				label.style.color = "white";
+			}
+		})
+		.catch((err) => {
+			console.log(err);
+		});
+};
+
+const callApiTimezone = async (lat, lon) => {
+	await axios({
+		method: "GET",
+		url: `https://api.timezonedb.com/v2.1/get-time-zone?key=${API_KEY_GET_TIMEZONE}&format=json&by=position&lat=${lat}&lng=${lon}`,
+	})
+		.then((res) => {
+			callApiGetTime(res.data.zoneName);
+		})
+		.catch((err) => {
+			console.log(err);
+		});
 };
 
 const callApiWeather = async (location) => {
@@ -26,6 +62,11 @@ const callApiWeather = async (location) => {
 		.catch((err) => {
 			console.log(err);
 		});
+};
+
+const handleSubmit = (e) => {
+	e.preventDefault();
+	callApiWeather(e.currentTarget[0].value);
 };
 
 const changeTemp = (temp) => {
@@ -84,45 +125,4 @@ const renderWeather = (data) => {
 			</div>
 		</div>
 	</div>`;
-};
-
-const callApiGetTime = async (timezone) => {
-	await axios({
-		method: "GET",
-		url: `https://timezoneapi.io/api/timezone/?${timezone}&token=${API_KEY_GET_TIME}`,
-	})
-		.then((res) => {
-			//night, evening, morning, afternoon
-
-			const timeday = res.data.data.datetime.timeday_gen;
-			if (timeday === "night") {
-				body.style.backgroundImage = `url('./img/night.jpg')`;
-				label.style.color = "white";
-			} else if (timeday === "evening") {
-				body.style.backgroundImage = `url('./img/evening.jpg')`;
-				label.style.color = "white";
-			} else if (timeday === "afternoon") {
-				body.style.backgroundImage = `url('./img/afternoon.jpg')`;
-				label.style.color = "black";
-			} else if (timeday === "morning") {
-				body.style.backgroundImage = `url('./img/morning.jpg')`;
-				label.style.color = "white";
-			}
-		})
-		.catch((err) => {
-			console.log(err);
-		});
-};
-
-const callApiTimezone = async (lat, lon) => {
-	await axios({
-		method: "GET",
-		url: `https://api.timezonedb.com/v2.1/get-time-zone?key=${API_KEY_GET_TIMEZONE}&format=json&by=position&lat=${lat}&lng=${lon}`,
-	})
-		.then((res) => {
-			callApiGetTime(res.data.zoneName);
-		})
-		.catch((err) => {
-			console.log(err);
-		});
 };
