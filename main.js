@@ -16,7 +16,7 @@ const handleSubmit = (e) => {
 const callApiWeather = async (location) => {
 	await axios({
 		method: "GET",
-		url: `http://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${API_KEY_WEATHER}`,
+		url: `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${API_KEY_WEATHER}`,
 	})
 		.then((res) => {
 			const { lat, lon } = res.data.coord;
@@ -46,7 +46,7 @@ const renderWeather = (data) => {
 		<div class='card-body'>
 			<div class='weather'>
 				<div class='weather_img d-flex align-items-center flex-column'>
-					<img src='http://openweathermap.org/img/wn/${weather[0].icon}@2x.png' alt='${
+					<img src='https://openweathermap.org/img/wn/${weather[0].icon}@2x.png' alt='${
 		weather[0].main
 	}' />
 					<span>${weather[0].description}</span>
@@ -117,7 +117,7 @@ const callApiGetTime = async (timezone) => {
 const callApiTimezone = async (lat, lon) => {
 	await axios({
 		method: "GET",
-		url: `http://api.timezonedb.com/v2.1/get-time-zone?key=${API_KEY_GET_TIMEZONE}&format=json&by=position&lat=${lat}&lng=${lon}`,
+		url: `https://api.timezonedb.com/v2.1/get-time-zone?key=${API_KEY_GET_TIMEZONE}&format=json&by=position&lat=${lat}&lng=${lon}`,
 	})
 		.then((res) => {
 			callApiGetTime(res.data.zoneName);
