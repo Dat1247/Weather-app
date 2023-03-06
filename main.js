@@ -8,41 +8,46 @@ const result = document.getElementById("result");
 const body = document.querySelector("body");
 const label = document.querySelector(".searchCity label");
 
-const callApiGetTime = async (timezone) => {
+const callApiGetTime = async (timezone, data) => {
 	await axios({
 		method: "GET",
 		url: `https://timezoneapi.io/api/timezone/?${timezone}&token=${API_KEY_GET_TIME}`,
 	})
 		.then((res) => {
-			//night, evening, morning, afternoon
-
-			const timeday = res.data.data.datetime.timeday_gen;
-			if (timeday === "night") {
-				body.style.backgroundImage = `url('./img/night.jpg')`;
-				label.style.color = "white";
-			} else if (timeday === "evening") {
-				body.style.backgroundImage = `url('./img/evening.jpg')`;
-				label.style.color = "white";
-			} else if (timeday === "afternoon") {
-				body.style.backgroundImage = `url('./img/afternoon.jpg')`;
-				label.style.color = "black";
-			} else if (timeday === "morning") {
-				body.style.backgroundImage = `url('./img/morning.jpg')`;
-				label.style.color = "white";
+			console.log(res);
+			const timeDay = res.data.data.datetime.timeday_gen;
+			switch (timeDay) {
+				case "morning":
+					body.style.backgroundImage = `url('./img/morning.jpg')`;
+					label.style.color = "white";
+					break;
+				case "afternoon":
+					body.style.backgroundImage = `url('./img/afternoon.jpg')`;
+					label.style.color = "black";
+					break;
+				case "evening":
+					body.style.backgroundImage = `url('./img/evening.jpg')`;
+					label.style.color = "white";
+					break;
+				default:
+					body.style.backgroundImage = `url('./img/night.jpg')`;
+					label.style.color = "white";
+					break;
 			}
+			result.innerHTML = renderWeather(data.data, res.data.data.datetime);
 		})
 		.catch((err) => {
 			console.log(err);
 		});
 };
 
-const callApiTimezone = async (lat, lon) => {
+const callApiTimezone = async (lat, lon, data) => {
 	await axios({
 		method: "GET",
 		url: `https://api.timezonedb.com/v2.1/get-time-zone?key=${API_KEY_GET_TIMEZONE}&format=json&by=position&lat=${lat}&lng=${lon}`,
 	})
 		.then((res) => {
-			callApiGetTime(res.data.zoneName);
+			callApiGetTime(res.data.zoneName, data);
 		})
 		.catch((err) => {
 			console.log(err);
@@ -56,25 +61,25 @@ const callApiWeather = async (location) => {
 	})
 		.then((res) => {
 			const { lat, lon } = res.data.coord;
-			callApiTimezone(lat, lon);
-			result.innerHTML = renderWeather(res.data);
+			callApiTimezone(lat, lon, res);
 		})
 		.catch((err) => {
 			console.log(err);
 		});
 };
 
-const handleSubmit = (e) => {
+const handleSubmit = async (e) => {
 	e.preventDefault();
-	callApiWeather(e.currentTarget[0].value);
+	await callApiWeather(e.currentTarget[0].value);
 };
 
 const changeTemp = (temp) => {
 	return Math.round(temp - 273.15);
 };
 
-const renderWeather = (data) => {
+const renderWeather = (data, timeOfDay) => {
 	const { main, name, sys, weather, wind } = data;
+	const { date, hour_12_wilz, minutes, hour_am_pm } = timeOfDay;
 
 	return `<div class='card'>
 		<div class='card-header d-flex justify-content-between align-items-center'>
@@ -96,6 +101,10 @@ const renderWeather = (data) => {
 					<li>
 						<p>Temp: </p>
 						<p>${changeTemp(main.temp)}&deg;C</p>
+					</li>
+					<li>
+						<p>Time: </p>
+						<p>${date} ${hour_12_wilz}:${minutes} ${hour_am_pm.toUpperCase()}</p>
 					</li>
 					<li>
 						<p>Temp max: </p>
