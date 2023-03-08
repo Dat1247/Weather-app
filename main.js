@@ -14,7 +14,6 @@ const callApiGetTime = async (timezone, data) => {
 		url: `https://timezoneapi.io/api/timezone/?${timezone}&token=${API_KEY_GET_TIME}`,
 	})
 		.then((res) => {
-			console.log(res);
 			const timeDay = res.data.data.datetime.timeday_gen;
 			switch (timeDay) {
 				case "morning":
@@ -65,6 +64,7 @@ const callApiWeather = async (location) => {
 		})
 		.catch((err) => {
 			console.log(err);
+			alert(err.message);
 		});
 };
 
@@ -83,29 +83,39 @@ const renderWeather = (data, timeOfDay) => {
 
 	return `<div class='card'>
 		<div class='card-header d-flex justify-content-between align-items-center'>
-			<p>
-				${name}
-			</p>
-			
-			<p>${sys.country}</p>
+			<p>${name} <span>(${sys.country})</span></p>
+			<p class='date fst-italic'>${date}</p>
 		</div>
 		<div class='card-body'>
 			<div class='weather'>
-				<div class='weather_img d-flex align-items-center flex-column'>
-					<img src='https://openweathermap.org/img/wn/${weather[0].icon}@2x.png' alt='${
+				<div class='d-flex weather_content'>
+					<div class="col-12 col-sm-6">
+						<div class='weather_img flexColumn'>
+							<img src='https://openweathermap.org/img/wn/${weather[0].icon}@2x.png' alt='${
 		weather[0].main
 	}' />
-					<span>${weather[0].description}</span>
+							<span>${weather[0].description}</span>
+						</div>
+					</div>
+					<div class="col-12 col-sm-6">
+						<div class="timeAndTemp flexColumn">
+							<div class="w-100 position-relative time">
+								<p class="text-center mb-0 fs-5">
+		
+									
+										${hour_12_wilz}:${minutes} ${hour_am_pm.toUpperCase()}
+									
+								</p>
+							</div>
+							<div class="w-100 flexColumn temp">
+								<p class="mb-0">${changeTemp(main.temp)}&deg;C</p>
+							</div>
+							
+						</div>
+					</div>
 				</div>
+
 				<ul>
-					<li>
-						<p>Temp: </p>
-						<p>${changeTemp(main.temp)}&deg;C</p>
-					</li>
-					<li>
-						<p>Time: </p>
-						<p>${date} ${hour_12_wilz}:${minutes} ${hour_am_pm.toUpperCase()}</p>
-					</li>
 					<li>
 						<p>Temp max: </p>
 						<p>${changeTemp(main.temp_max)}&deg;C</p>
